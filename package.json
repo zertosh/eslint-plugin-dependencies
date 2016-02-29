@@ -1,0 +1,26 @@
+{
+  "name": "eslint-plugin-dependencies",
+  "version": "1.0.0",
+  "description": "require/import dependency validation",
+  "keywords": [
+    "eslint",
+    "eslint-plugin",
+    "eslintplugin",
+    "import",
+    "require"
+  ],
+  "license": "MIT",
+  "author": "Andres Suarez <zertosh@gmail.com>",
+  "repository": "zertosh/eslint-plugin-dependencies",
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "dependencies": {
+    "babylon": "^6.5.0",
+    "resolve": "^1.1.6"
+  },
+  "devDependencies": {
+    "babel-eslint": "^4.1.4",
+    "eslint": "^1.8.0"
+  }
+}
