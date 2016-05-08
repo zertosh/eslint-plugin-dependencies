@@ -1,8 +1,6 @@
 'use strict';
 
-var commondir = require('commondir');
 var path = require('path');
-var fs = require('fs');
 
 var resolveSync = require('./_resolveSync');
 
@@ -11,35 +9,41 @@ var jsonExtRe = /\.json$/;
 
 module.exports = function(context) {
   var target = context.getFilename();
-  var basedir = path.dirname(target);
 
-  function validate(node, value) {
+  var resolveOpts = {
+    basedir: path.dirname(target),
+    extensions: ['.js', '.json'],
+  };
+
+  function validate(node, valueNode) {
+    var value = valueNode.value;
     if (externalRe.test(value)) return;
-    var resolved = resolveSync(value, {basedir: basedir});
-    if (!resolved) return;
-    if (jsonExtRe.test(resolved) && !jsonExtRe.test(value)) {
+    var resolved = resolveSync(value, resolveOpts);
+    if (resolved && jsonExtRe.test(resolved) && !jsonExtRe.test(value)) {
       context.report({
         node: node.type === 'CallExpression' ? node.arguments[0] : node.source,
-        data: {value: value},
-        message: '"{{value}} needs ".json" extension',
+        data: {basename: path.basename(value)},
+        message: '"{{basename}}" needs ".json" extension',
+        fix: function(fixer) {
+          return fixer.insertTextAfter(valueNode, '.json');
+        },
       });
-      // TODO: Add auto-fix
     }
   }
 
   return {
     CallExpression: function(node) {
-      // require('dep')
+      // require(…);
       if (
         node.callee.type === 'Identifier' &&
         node.callee.name === 'require' &&
         node.arguments[0] &&
         node.arguments[0].type === 'Literal'
       ) {
-        validate(node, node.arguments[0].value);
+        validate(node, node.arguments[0]);
         return;
       }
-      // require.resolve('dep')
+      // require.resolve(…);
       if (
         node.callee.type === 'MemberExpression' &&
         node.callee.computed === false &&
@@ -50,12 +54,25 @@ module.exports = function(context) {
         node.arguments[0] &&
         node.arguments[0].type === 'Literal'
       ) {
-        validate(node, node.arguments[0].value);
+        validate(node, node.arguments[0]);
         return;
       }
     },
     ImportDeclaration: function(node) {
-      validate(node, node.source.value);
+      // import … from …;
+      validate(node, node.source);
+    },
+    ExportAllDeclaration: function(node) {
+      // export * from …;
+      if (node.source && node.source.type === 'Literal') {
+        validate(node, node.source);
+      }
+    },
+    ExportNamedDeclaration: function(node) {
+      // export … from …;
+      if (node.source && node.source.type === 'Literal') {
+        validate(node, node.source);
+      }
     },
   };
 };
