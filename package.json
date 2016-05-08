@@ -10,18 +10,21 @@
     "require"
   ],
   "license": "MIT",
+  "files": [
+    "README.md",
+    "*.js"
+  ],
   "author": "Andres Suarez <zertosh@gmail.com>",
   "repository": "zertosh/eslint-plugin-dependencies",
   "scripts": {
-    "test": "node test/test.js"
+    "test": "find test -name '*-test.js' -print0 | xargs -n 1 -0 node"
   },
   "dependencies": {
-    "babylon": "^6.5.0",
     "commondir": "^1.0.1",
     "resolve": "^1.1.6"
   },
   "devDependencies": {
-    "babel-eslint": "^4.1.4",
-    "eslint": "^1.8.0"
+    "babel-eslint": "^6.0.4",
+    "eslint": "^2.9.0"
   }
 }

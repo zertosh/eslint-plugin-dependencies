@@ -1,10 +1,10 @@
 'use strict';
 
 var resolve = require('resolve');
+var cache;
 
-var cache = Object.create(null);
-
-module.exports.sync = function(x, opts) {
+module.exports = function(x, opts) {
+  if (!cache) makeCache();
   var cacheKey = JSON.stringify([x, opts]);
   if (!(cacheKey in cache)) {
     try {
@@ -15,3 +15,9 @@ module.exports.sync = function(x, opts) {
   }
   return cache[cacheKey];
 };
+
+function makeCache() {
+  // The cache is preserved for the one tick that eslint runs in.
+  cache = Object.create(null);
+  process.nextTick(function() { cache = null; });
+}

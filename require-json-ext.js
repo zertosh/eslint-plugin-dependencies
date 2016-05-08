@@ -2,8 +2,9 @@
 
 var commondir = require('commondir');
 var path = require('path');
-var resolve = require('./lib/resolve');
 var fs = require('fs');
+
+var resolveSync = require('./_resolveSync');
 
 var externalRe = /^[^./]/;
 var jsonExtRe = /\.json$/;
@@ -14,7 +15,7 @@ module.exports = function(context) {
 
   function validate(node, value) {
     if (externalRe.test(value)) return;
-    var resolved = resolve.sync(value, {basedir: basedir});
+    var resolved = resolveSync(value, {basedir: basedir});
     if (!resolved) return;
     if (jsonExtRe.test(resolved) && !jsonExtRe.test(value)) {
       context.report({

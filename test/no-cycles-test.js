@@ -5,12 +5,12 @@ var path = require('path');
 
 var RuleTester = require('eslint').RuleTester;
 
-var noCylesRule = require('../no-cycles');
-
 var ruleTester = new RuleTester();
-ruleTester.run('no-cyles', noCylesRule, {
+ruleTester.run('no-cycles', require.resolve('../no-cycles'), {
   valid: [
-    'console.log();',
+    {
+      code: 'console.log();',
+    },
     {
       // self-ref-extern
       // a => b => b
