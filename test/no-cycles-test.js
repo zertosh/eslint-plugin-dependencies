@@ -80,5 +80,21 @@ ruleTester.run('no-cycles', require.resolve('../no-cycles'), {
         'Cycle in c.js.',
       ],
     },
+
+    //
+    // babel-eslint
+    //
+    {
+      // multi-direct
+      // a => b => c => a
+      // a ======> c => a
+      filename: path.join(__dirname, 'cycles-with-babel-eslint/a.js'),
+      code: fs.readFileSync(path.join(__dirname, 'cycles-with-babel-eslint/a.js'), 'utf8'),
+      parser: 'babel-eslint',
+      errors: [
+        'Cycle in b.js => c.js.',
+        'Cycle in c.js.',
+      ],
+    },
   ],
 });
