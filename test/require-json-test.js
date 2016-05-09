@@ -1,6 +1,5 @@
 'use strict';
 
-var path = require('path');
 var RuleTester = require('eslint').RuleTester;
 
 var ruleTester = new RuleTester();
@@ -8,91 +7,138 @@ ruleTester.run('require-json-ext', require.resolve('../require-json-ext'), {
   valid: [
     {
       filename: __filename,
-      code: 'require("' + __filename + '")',
+      code: 'require("./require-json/foo")',
     },
     {
       filename: __filename,
-      code: 'require("./' + path.basename(__filename) + '")',
+      code: 'require("./require-json/foo.js")',
     },
     {
       filename: __filename,
-      code: 'require("./non-existent-file")',
+      code: 'require("./require-json/foo.json")',
     },
     {
       filename: __filename,
-      code: 'require("../package.json")',
+      code: 'require("./require-json/bar.json")',
     },
     {
       filename: __filename,
-      code: 'require.resolve("' + __filename + '")',
+      code: 'require("./require-json/non-existent-file")',
     },
     {
       filename: __filename,
-      code: 'require.resolve("./' + path.basename(__filename) + '")',
+      code: 'require("./require-json/non-existent-file.json")',
     },
     {
       filename: __filename,
-      code: 'require.resolve("./non-existent-file")',
+      code: 'require("resolve/package.json")',
     },
+
+    //
+    // require.resolve, import, export
+    //
     {
       filename: __filename,
-      code: 'require.resolve("../package.json")',
-    },
-    {
-      filename: __filename,
-      parserOptions: {sourceType: 'module'},
-      code: 'import json from "' + __filename + '"',
-    },
-    {
-      filename: __filename,
-      parserOptions: {sourceType: 'module'},
-      code: 'import "./' + path.basename(__filename) + '"',
+      code: 'require.resolve("./require-json/bar.json")',
     },
     {
       filename: __filename,
       parserOptions: {sourceType: 'module'},
-      code: 'import json from "./non-existent-file"',
+      code: 'import "./require-json/bar.json"',
     },
     {
       filename: __filename,
       parserOptions: {sourceType: 'module'},
-      code: 'import json from "../package.json"',
+      code: 'import bar from "./require-json/bar.json"',
     },
     {
       filename: __filename,
       parserOptions: {sourceType: 'module'},
-      code: 'export * from "../package.json"',
+      code: 'export * from "./require-json/bar.json"',
+    },
+    {
+      filename: __filename,
+      parserOptions: {sourceType: 'module'},
+      code: 'export {bar} from "./require-json/bar.json"',
     },
   ],
   invalid: [
     {
       filename: __filename,
-      code: 'require("../package")',
+      code: 'require("./require-json/bar")',
       errors: [
-        '"package" needs ".json" extension',
+        {
+          type: 'Literal',
+          message: '"bar" needs ".json" extension',
+        },
       ],
     },
     {
       filename: __filename,
-      code: 'require.resolve("../package")',
+      code: 'require("resolve/package")',
       errors: [
-        '"package" needs ".json" extension',
+        {
+          type: 'Literal',
+          message: '"package" needs ".json" extension',
+        },
+      ],
+    },
+
+    //
+    // require.resolve, import, export
+    //
+    {
+      filename: __filename,
+      code: 'require.resolve("./require-json/bar")',
+      errors: [
+        {
+          type: 'Literal',
+          message: '"bar" needs ".json" extension',
+        },
       ],
     },
     {
       filename: __filename,
       parserOptions: {sourceType: 'module'},
-      code: 'import "../package"',
+      code: 'import "./require-json/bar"',
       errors: [
-        '"package" needs ".json" extension',
+        {
+          type: 'Literal',
+          message: '"bar" needs ".json" extension',
+        },
       ],
     },
     {
       filename: __filename,
       parserOptions: {sourceType: 'module'},
-      code: 'export * from "../package"',
+      code: 'import bar from "./require-json/bar"',
       errors: [
-        '"package" needs ".json" extension',
+        {
+          type: 'Literal',
+          message: '"bar" needs ".json" extension',
+        },
+      ],
+    },
+    {
+      filename: __filename,
+      parserOptions: {sourceType: 'module'},
+      code: 'export {bar} from "./require-json/bar"',
+      errors: [
+        {
+          type: 'Literal',
+          message: '"bar" needs ".json" extension',
+        },
+      ],
+    },
+    {
+      filename: __filename,
+      parserOptions: {sourceType: 'module'},
+      code: 'export * from "./require-json/bar"',
+      errors: [
+        {
+          type: 'Literal',
+          message: '"bar" needs ".json" extension',
+        },
       ],
     },
   ],

@@ -4,7 +4,6 @@ var path = require('path');
 
 var resolveSync = require('./_resolveSync');
 
-var externalRe = /^[^./]/;
 var jsonExtRe = /\.json$/;
 
 module.exports = function(context) {
@@ -12,14 +11,14 @@ module.exports = function(context) {
 
   var resolveOpts = {
     basedir: path.dirname(target),
-    extensions: ['.js', '.json'],
+    extensions: ['.js', '.json', '.node'],
   };
 
   function validate(node, valueNode) {
     var value = valueNode.value;
-    if (externalRe.test(value)) return;
+    if (jsonExtRe.test(value)) return;
     var resolved = resolveSync(value, resolveOpts);
-    if (resolved && jsonExtRe.test(resolved) && !jsonExtRe.test(value)) {
+    if (jsonExtRe.test(resolved)) {
       context.report({
         node: node.type === 'CallExpression' ? node.arguments[0] : node.source,
         data: {basename: path.basename(value)},
@@ -33,18 +32,16 @@ module.exports = function(context) {
 
   return {
     CallExpression: function(node) {
-      // require(…);
       if (
+        // require(…);
         node.callee.type === 'Identifier' &&
         node.callee.name === 'require' &&
         node.arguments[0] &&
         node.arguments[0].type === 'Literal'
       ) {
         validate(node, node.arguments[0]);
-        return;
-      }
-      // require.resolve(…);
-      if (
+      } else if (
+        // require.resolve(…);
         node.callee.type === 'MemberExpression' &&
         node.callee.computed === false &&
         node.callee.object.type === 'Identifier' &&
@@ -55,11 +52,11 @@ module.exports = function(context) {
         node.arguments[0].type === 'Literal'
       ) {
         validate(node, node.arguments[0]);
-        return;
       }
     },
     ImportDeclaration: function(node) {
-      // import … from …;
+      // import … from "…";
+      // import "…";
       validate(node, node.source);
     },
     ExportAllDeclaration: function(node) {

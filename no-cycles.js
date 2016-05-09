@@ -29,7 +29,7 @@ var traverser = new Traverser();
 //------------------------------------------------------------------------------
 
 var externalRe = /^[^./]/;
-var jsonExtRe = /\.json$/;
+var skipExts = /\.(?:json|node)$/;
 var searchRe = /\b(?:require|import|export)\b/;
 
 function StorageObject() {}
@@ -84,8 +84,12 @@ function read(filename) {
 
 function resolver(name, basedir) {
   if (!externalRe.test(name)) {
-    var resolved = resolveSync(name, {basedir: basedir});
-    if (resolved && !jsonExtRe.test(resolved)) {
+    var opts = {
+      basedir: basedir,
+      extensions: ['.js', '.json', '.node'],
+    };
+    var resolved = resolveSync(name, opts);
+    if (resolved && !skipExts.test(resolved)) {
       return resolved;
     }
   }
@@ -106,7 +110,7 @@ function getDeps(filename, src, ast, context) {
   if (depsCache[filename]) return depsCache[filename];
   var found = depsCache[filename] = [];
 
-  if (jsonExtRe.test(filename)) return found;
+  if (skipExts.test(filename)) return found;
 
   if (!src) src = read(filename);
   if (!src) return found;
