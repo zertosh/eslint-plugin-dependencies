@@ -34,7 +34,18 @@ Verifies that `require("…")`, `require.resolve(…)`, `import "…"` and `expo
 
 ### `dependencies/no-cycles`
 
-Prevents cyclic references between modules. It resolves `require("…")`, `import "…"` and `export … from "…"` references to internal modules (i.e. not `node_modules`), to determine whether there is a cycle. If you're using a custom parser, the rule will use that to parse the dependencies.
+Prevents cyclic references between modules. It resolves `require("…")`, `import "…"` and `export … from "…"` references to internal modules (i.e. not `node_modules`), to determine whether there is a cycle. If you're using a custom parser, the rule will use that to parse the dependencies. The rule takes a `skip` array of strings, that will be treated as regexps to skip checking files.
+
+```json
+{
+  "plugins": [
+    "dependencies"
+  ],
+  "rules": {
+    "dependencies/no-cyles": [1, {"skip": ["/spec/", "/vendor/"]}]
+  }
+}
+```
 
 ### `dependencies/no-unresolved`
 

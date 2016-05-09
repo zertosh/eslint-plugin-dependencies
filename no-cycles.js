@@ -35,6 +35,10 @@ var searchRe = /\b(?:require|import|export)\b/;
 function StorageObject() {}
 StorageObject.prototype = Object.create(null);
 
+var NoopVisitor = {
+  Program: function() {},
+};
+
 function parse(src, parserPath, parserOptions) {
   var parser = eslintModule.require(parserPath);
   try {
@@ -112,9 +116,17 @@ function getDeps(filename, src, ast, context) {
 //------------------------------------------------------------------------------
 
 module.exports = function(context) {
-  var seen = new StorageObject();
-
   var target = context.getFilename();
+
+  var skip = context.options[0] && context.options[0].skip;
+  var shouldSkip = skip && skip.some(function(pattern) {
+    return RegExp(pattern).test(target);
+  });
+  if (shouldSkip) {
+    return NoopVisitor;
+  }
+
+  var seen = new StorageObject();
   var basedir = path.dirname(target);
 
   function trace(filename, depth, refs) {
@@ -143,7 +155,7 @@ module.exports = function(context) {
         node: node,
         message: 'Self-reference cycle.',
       });
-    } else {
+    } else if (resolved) {
       var refs = trace(resolved);
       for (var i = 0; i < refs.length; i++) {
         var prettyTrace = relativizeTrace(refs[i], basedir).join(' => ');
@@ -186,4 +198,11 @@ module.exports = function(context) {
   };
 };
 
-module.exports.schema = [];
+module.exports.schema = {
+  skip: {
+    type: 'array',
+    items: {
+      type: 'string',
+    },
+  },
+};

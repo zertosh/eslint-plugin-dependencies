@@ -17,6 +17,17 @@ ruleTester.run('no-cycles', require.resolve('../no-cycles'), {
       filename: path.join(__dirname, 'cycles-self-ref-extern/a.js'),
       code: fs.readFileSync(path.join(__dirname, 'cycles-self-ref-extern/a.js'), 'utf8'),
     },
+
+    //
+    // skip option
+    //
+    {
+      // self-ref-direct
+      // a => a
+      filename: path.join(__dirname, 'cycles-self-ref-direct/a.js'),
+      code: fs.readFileSync(path.join(__dirname, 'cycles-self-ref-direct/a.js'), 'utf8'),
+      options: [{skip: ['/cycles-self-ref-direct/']}],
+    },
   ],
   invalid: [
     {
@@ -94,6 +105,20 @@ ruleTester.run('no-cycles', require.resolve('../no-cycles'), {
       errors: [
         'Cycle in b.js => c.js.',
         'Cycle in c.js.',
+      ],
+    },
+
+    //
+    // skip
+    //
+    {
+      // self-ref-direct
+      // a => a
+      filename: path.join(__dirname, 'cycles-self-ref-direct/a.js'),
+      code: fs.readFileSync(path.join(__dirname, 'cycles-self-ref-direct/a.js'), 'utf8'),
+      options: [{skip: ['/some-path-that-doesnt-exist/']}],
+      errors: [
+        'Self-reference cycle.',
       ],
     },
   ],
