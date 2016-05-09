@@ -98,6 +98,11 @@ function getDeps(filename, src, ast, context) {
 
   traverser.traverse(ast, {
     enter: function(node, parent) {
+      var start = node.range ? node.range[0] : node.start;
+      var end = node.range ? node.range[1] : node.end;
+      var section = src.slice(start, end);
+      if (!searchRe.test(section)) return this.skip();
+
       if (helpers.isRequireCall(node) ||
           helpers.isImport(node) ||
           helpers.isExportFrom(node)) {
