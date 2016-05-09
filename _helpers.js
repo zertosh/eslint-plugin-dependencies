@@ -19,7 +19,7 @@ function resolveSync(x, opts) {
 
 function isRequireCall(node) {
   // require("…");
-  return node && (
+  return (
     node.type === 'CallExpression' &&
     node.callee.type === 'Identifier' &&
     node.callee.name === 'require' &&
@@ -30,7 +30,7 @@ function isRequireCall(node) {
 
 function isRequireResolveCall(node) {
   // require.resolve("…");
-  return node && (
+  return (
     node.type === 'CallExpression' &&
     node.callee.type === 'MemberExpression' &&
     node.callee.computed === false &&
@@ -46,9 +46,9 @@ function isRequireResolveCall(node) {
 function isImport(node) {
   // import … from "…";
   // import "…";
-  return node && (
+  return (
     node.type === 'ImportDeclaration' &&
-    node.importKind !== 'type' && // undefined or "value"
+    (node.importKind == null || node.importKind === 'value') &&
     node.source &&
     node.source.type === 'Literal'
   );
@@ -57,11 +57,11 @@ function isImport(node) {
 function isExportFrom(node) {
   // export * from "…";
   // export … from "…";
-  return node && (
+  return (
     node.type === 'ExportAllDeclaration' ||
     node.type === 'ExportNamedDeclaration'
   ) && (
-    node.importKind !== 'type' && // undefined or "value"
+    (node.exportKind == null || node.exportKind === 'value') &&
     node.source &&
     node.source.type === 'Literal'
   );
