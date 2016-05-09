@@ -181,8 +181,7 @@ module.exports = function(context) {
     'Program:exit': function(node) {
       // since this ast has already been built, and traversing is cheap,
       // run it through references.deps so it's cached for future runs.
-      var src = context.getSourceCode().text;
-      getDeps(target, src, node);
+      getDeps(target, context.getSourceCode().text, node, context);
     },
   };
 };
