@@ -69,7 +69,7 @@ ruleTester.run('require-json-ext', require.resolve('../require-json-ext'), {
       errors: [
         {
           type: 'Literal',
-          message: '"bar" needs ".json" extension',
+          message: '"bar" missing ".json" extension.',
         },
       ],
     },
@@ -79,7 +79,7 @@ ruleTester.run('require-json-ext', require.resolve('../require-json-ext'), {
       errors: [
         {
           type: 'Literal',
-          message: '"package" needs ".json" extension',
+          message: '"package" missing ".json" extension.',
         },
       ],
     },
@@ -93,7 +93,7 @@ ruleTester.run('require-json-ext', require.resolve('../require-json-ext'), {
       errors: [
         {
           type: 'Literal',
-          message: '"bar" needs ".json" extension',
+          message: '"bar" missing ".json" extension.',
         },
       ],
     },
@@ -104,7 +104,7 @@ ruleTester.run('require-json-ext', require.resolve('../require-json-ext'), {
       errors: [
         {
           type: 'Literal',
-          message: '"bar" needs ".json" extension',
+          message: '"bar" missing ".json" extension.',
         },
       ],
     },
@@ -115,7 +115,7 @@ ruleTester.run('require-json-ext', require.resolve('../require-json-ext'), {
       errors: [
         {
           type: 'Literal',
-          message: '"bar" needs ".json" extension',
+          message: '"bar" missing ".json" extension.',
         },
       ],
     },
@@ -126,7 +126,7 @@ ruleTester.run('require-json-ext', require.resolve('../require-json-ext'), {
       errors: [
         {
           type: 'Literal',
-          message: '"bar" needs ".json" extension',
+          message: '"bar" missing ".json" extension.',
         },
       ],
     },
@@ -137,7 +137,7 @@ ruleTester.run('require-json-ext', require.resolve('../require-json-ext'), {
       errors: [
         {
           type: 'Literal',
-          message: '"bar" needs ".json" extension',
+          message: '"bar" missing ".json" extension.',
         },
       ],
     },

@@ -25,7 +25,7 @@ ruleTester.run('no-cycles', require.resolve('../no-cycles'), {
       filename: path.join(__dirname, 'cycles-self-ref-direct/a.js'),
       code: fs.readFileSync(path.join(__dirname, 'cycles-self-ref-direct/a.js'), 'utf8'),
       errors: [
-        'Self-reference cycle',
+        'Self-reference cycle.',
       ],
     },
     {
@@ -35,8 +35,8 @@ ruleTester.run('no-cycles', require.resolve('../no-cycles'), {
       filename: path.join(__dirname, 'cycles-multi-direct/a.js'),
       code: fs.readFileSync(path.join(__dirname, 'cycles-multi-direct/a.js'), 'utf8'),
       errors: [
-        'Cycle in b.js => c.js',
-        'Cycle in c.js',
+        'Cycle in b.js => c.js.',
+        'Cycle in c.js.',
       ],
     },
     {
@@ -46,8 +46,8 @@ ruleTester.run('no-cycles', require.resolve('../no-cycles'), {
       filename: path.join(__dirname, 'cycles-multi-part-direct/a.js'),
       code: fs.readFileSync(path.join(__dirname, 'cycles-multi-part-direct/a.js'), 'utf8'),
       errors: [
-        'Cycle in b.js',
-        'Cycle in b.js => c.js',
+        'Cycle in b.js.',
+        'Cycle in b.js => c.js.',
       ],
     },
     {
@@ -57,7 +57,7 @@ ruleTester.run('no-cycles', require.resolve('../no-cycles'), {
       filename: path.join(__dirname, 'cycles-multi-direct-extern/a.js'),
       code: fs.readFileSync(path.join(__dirname, 'cycles-multi-direct-extern/a.js'), 'utf8'),
       errors: [
-        'Cycle in b.js => c.js',
+        'Cycle in b.js => c.js.',
       ],
     },
     {
@@ -72,12 +72,12 @@ ruleTester.run('no-cycles', require.resolve('../no-cycles'), {
       filename: path.join(__dirname, 'cycles-dups/a.js'),
       code: fs.readFileSync(path.join(__dirname, 'cycles-dups/a.js'), 'utf8'),
       errors: [
-        'Self-reference cycle',
-        'Self-reference cycle',
-        'Cycle in b.js => c.js',
-        'Cycle in b.js => c.js',
-        'Cycle in c.js',
-        'Cycle in c.js',
+        'Self-reference cycle.',
+        'Self-reference cycle.',
+        'Cycle in b.js => c.js.',
+        'Cycle in b.js => c.js.',
+        'Cycle in c.js.',
+        'Cycle in c.js.',
       ],
     },
   ],

@@ -22,7 +22,7 @@ module.exports = function(context) {
       context.report({
         node: idNode,
         data: {basename: basename},
-        message: '"{{basename}}" needs ".json" extension',
+        message: '"{{basename}}" missing ".json" extension.',
         fix: function(fixer) {
           return fixer.insertTextAfter(idNode, '.json');
         },

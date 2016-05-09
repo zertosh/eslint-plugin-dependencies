@@ -141,7 +141,7 @@ module.exports = function(context) {
     if (resolved === target) {
       context.report({
         node: node,
-        message: 'Self-reference cycle',
+        message: 'Self-reference cycle.',
       });
     } else {
       var refs = trace(resolved);
@@ -150,7 +150,7 @@ module.exports = function(context) {
         context.report({
           node: node,
           data: {trace: prettyTrace},
-          message: 'Cycle in {{trace}}',
+          message: 'Cycle in {{trace}}.',
         });
       }
     }
