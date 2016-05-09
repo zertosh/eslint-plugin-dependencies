@@ -4,20 +4,20 @@ var commondir = require('commondir');
 var path = require('path');
 var fs = require('fs');
 
-var resolveSync = require('./_resolveSync');
+var helpers = require('./_helpers');
 
 var nodeExts = /\.(js|json|node)$/;
 
-var readdirCache = Object.create(null);
+var _readdirCache = Object.create(null);
 function readdirSync(dirname) {
-  if (!(dirname in readdirCache)) {
+  if (!(dirname in _readdirCache)) {
     try {
-      readdirCache[dirname] = fs.readdirSync(dirname);
+      _readdirCache[dirname] = fs.readdirSync(dirname);
     } catch (err) {
-      readdirCache[dirname] = null;
+      _readdirCache[dirname] = null;
     }
   }
-  return readdirCache[dirname];
+  return _readdirCache[dirname];
 }
 
 // turns "/a/b/c.js" into ["/a", "/a/b", "/a/b/c.js"]
@@ -51,9 +51,9 @@ module.exports = function(context) {
     extensions: ['.js', '.json', '.node'],
   };
 
-  function validate(node, valueNode) {
-    var value = valueNode.value;
-    var resolved = resolveSync(value, resolveOpts);
+  function validate(node) {
+    var id = helpers.getModuleId(node);
+    var resolved = helpers.resolveSync(id, resolveOpts);
     if (!resolved) return;
     var prefix = commondir([target, resolved]);
     pathSteps(resolved)
@@ -66,6 +66,9 @@ module.exports = function(context) {
         var dirname = path.dirname(step);
         var dirlist = readdirSync(dirname);
 
+        // we don't have permission?
+        if (!dirlist) return;
+
         // compare the directory listing to the requested path. this works
         // because "resolve" resolves by concating the path segments from the
         // input, so the resolved path will have the incorrect case:
@@ -74,7 +77,7 @@ module.exports = function(context) {
         var shouldRemoveExt =
           i === steps.length - 1 &&   // last step
           nodeExts.test(basename) &&  // expected
-          !nodeExts.test(value);      // actual
+          !nodeExts.test(id);         // actual
 
         var suggestion = getCaseSuggestion(basename, dirlist);
 
@@ -86,15 +89,17 @@ module.exports = function(context) {
           ? suggestion.replace(nodeExts, '')
           : suggestion;
 
+        var idNode = helpers.getIdNode(node);
+
         if (correct) {
           context.report({
-            node: valueNode,
+            node: idNode,
             data: {incorrect: incorrect, correct: correct},
             message: 'Case mismatch in "{{incorrect}}", expected "{{correct}}".',
           });
         } else {
           context.report({
-            node: valueNode,
+            node: idNode,
             data: {incorrect: incorrect},
             message: 'Case mismatch in "{{incorrect}}".',
           });
@@ -104,43 +109,24 @@ module.exports = function(context) {
 
   return {
     CallExpression: function(node) {
-      if (
-        // require("…");
-        node.callee.type === 'Identifier' &&
-        node.callee.name === 'require' &&
-        node.arguments[0] &&
-        node.arguments[0].type === 'Literal'
-      ) {
-        validate(node, node.arguments[0]);
-      } else if (
-        // require.resolve("…");
-        node.callee.type === 'MemberExpression' &&
-        node.callee.computed === false &&
-        node.callee.object.type === 'Identifier' &&
-        node.callee.object.name === 'require' &&
-        node.callee.property.type === 'Identifier' &&
-        node.callee.property.name === 'resolve' &&
-        node.arguments[0] &&
-        node.arguments[0].type === 'Literal'
-      ) {
-        validate(node, node.arguments[0]);
+      if (helpers.isRequireCall(node) ||
+          helpers.isRequireResolveCall(node)) {
+        validate(node);
       }
     },
     ImportDeclaration: function(node) {
-      // import … from "…";
-      // import "…";
-      validate(node, node.source);
+      if (helpers.isImport(node)) {
+        validate(node);
+      }
     },
     ExportAllDeclaration: function(node) {
-      // export * from "…";
-      if (node.source && node.source.type === 'Literal') {
-        validate(node, node.source);
+      if (helpers.isExportFrom(node)) {
+        validate(node);
       }
     },
     ExportNamedDeclaration: function(node) {
-      // export … from "…";
-      if (node.source && node.source.type === 'Literal') {
-        validate(node, node.source);
+      if (helpers.isExportFrom(node)) {
+        validate(node);
       }
     },
   };

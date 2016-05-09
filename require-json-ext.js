@@ -1,9 +1,7 @@
 'use strict';
 
 var path = require('path');
-
-var resolveSync = require('./_resolveSync');
-
+var helpers = require('./_helpers');
 var jsonExtRe = /\.json$/;
 
 module.exports = function(context) {
@@ -14,17 +12,19 @@ module.exports = function(context) {
     extensions: ['.js', '.json', '.node'],
   };
 
-  function validate(node, valueNode) {
-    var value = valueNode.value;
-    if (jsonExtRe.test(value)) return;
-    var resolved = resolveSync(value, resolveOpts);
+  function validate(node) {
+    var id = helpers.getModuleId(node);
+    if (jsonExtRe.test(id)) return;
+    var resolved = helpers.resolveSync(id, resolveOpts);
     if (jsonExtRe.test(resolved)) {
+      var basename = path.basename(id);
+      var idNode = helpers.getIdNode(node);
       context.report({
-        node: node.type === 'CallExpression' ? node.arguments[0] : node.source,
-        data: {basename: path.basename(value)},
+        node: idNode,
+        data: {basename: basename},
         message: '"{{basename}}" needs ".json" extension',
         fix: function(fixer) {
-          return fixer.insertTextAfter(valueNode, '.json');
+          return fixer.insertTextAfter(idNode, '.json');
         },
       });
     }
@@ -32,43 +32,24 @@ module.exports = function(context) {
 
   return {
     CallExpression: function(node) {
-      if (
-        // require(…);
-        node.callee.type === 'Identifier' &&
-        node.callee.name === 'require' &&
-        node.arguments[0] &&
-        node.arguments[0].type === 'Literal'
-      ) {
-        validate(node, node.arguments[0]);
-      } else if (
-        // require.resolve(…);
-        node.callee.type === 'MemberExpression' &&
-        node.callee.computed === false &&
-        node.callee.object.type === 'Identifier' &&
-        node.callee.object.name === 'require' &&
-        node.callee.property.type === 'Identifier' &&
-        node.callee.property.name === 'resolve' &&
-        node.arguments[0] &&
-        node.arguments[0].type === 'Literal'
-      ) {
-        validate(node, node.arguments[0]);
+      if (helpers.isRequireCall(node) ||
+          helpers.isRequireResolveCall(node)) {
+        validate(node);
       }
     },
     ImportDeclaration: function(node) {
-      // import … from "…";
-      // import "…";
-      validate(node, node.source);
+      if (helpers.isImport(node)) {
+        validate(node);
+      }
     },
     ExportAllDeclaration: function(node) {
-      // export * from …;
-      if (node.source && node.source.type === 'Literal') {
-        validate(node, node.source);
+      if (helpers.isExportFrom(node)) {
+        validate(node);
       }
     },
     ExportNamedDeclaration: function(node) {
-      // export … from …;
-      if (node.source && node.source.type === 'Literal') {
-        validate(node, node.source);
+      if (helpers.isExportFrom(node)) {
+        validate(node);
       }
     },
   };

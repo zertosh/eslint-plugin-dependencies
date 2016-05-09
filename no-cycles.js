@@ -2,7 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var resolveSync = require('./_resolveSync');
+var helpers = require('./_helpers');
 
 /**
  * A reference to the eslint module is needed to be able to require the same
@@ -35,40 +35,10 @@ var searchRe = /\b(?:require|import|export)\b/;
 function StorageObject() {}
 StorageObject.prototype = Object.create(null);
 
-function isRequire(node) {
-  return (
-    node.type === 'CallExpression' &&
-    node.callee.type === 'Identifier' &&
-    node.callee.name === 'require' &&
-    node.arguments[0] &&
-    node.arguments[0].type === 'Literal'
-  );
-}
-
-function isImport(node) {
-  return (
-    node.type === 'ImportDeclaration' &&
-    node.importKind !== 'type' && // undefined or "value"
-    node.source &&
-    node.source.type === 'Literal'
-  );
-}
-
-function isExportFrom(node) {
-  return (
-    node.type === 'ExportAllDeclaration' ||
-    node.type === 'ExportNamedDeclaration'
-  ) && (
-    node.importKind !== 'type' && // undefined or "value"
-    node.source &&
-    node.source.type === 'Literal'
-  );
-}
-
-function parse(src, context) {
-  var parser = eslintModule.require(context.parserPath);
+function parse(src, parserPath, parserOptions) {
+  var parser = eslintModule.require(parserPath);
   try {
-    return parser.parse(src, context.parserOptions);
+    return parser.parse(src, parserOptions);
   } catch (err) {
     return null;
   }
@@ -88,7 +58,7 @@ function resolver(name, basedir) {
       basedir: basedir,
       extensions: ['.js', '.json', '.node'],
     };
-    var resolved = resolveSync(name, opts);
+    var resolved = helpers.resolveSync(name, opts);
     if (resolved && !skipExts.test(resolved)) {
       return resolved;
     }
@@ -117,20 +87,20 @@ function getDeps(filename, src, ast, context) {
 
   if (!searchRe.test(src)) return found;
 
-  if (!ast) ast = parse(src, context);
+  if (!ast) ast = parse(src, context.parserPath, context.parserOptions);
   if (!ast) return found;
 
   var basedir = path.dirname(filename);
 
   traverser.traverse(ast, {
     enter: function(node, parent) {
-      var resolved;
-      if (isRequire(node)) {
-        resolved = resolver(node.arguments[0].value, basedir);
-      } else if (isImport(node) || isExportFrom(node)) {
-        resolved = resolver(node.source.value, basedir);
+      if (helpers.isRequireCall(node) ||
+          helpers.isImport(node) ||
+          helpers.isExportFrom(node)) {
+        var id = helpers.getModuleId(node);
+        var resolved = resolver(id, basedir);
+        if (resolved) found.push(resolved);
       }
-      if (resolved) found.push(resolved);
     },
   });
 
@@ -165,12 +135,12 @@ module.exports = function(context) {
     return refs;
   }
 
-  function resolveAndReport(node, value) {
-    var resolved = resolver(value, basedir);
+  function validate(node) {
+    var id = helpers.getModuleId(node);
+    var resolved = resolver(id, basedir);
     if (resolved === target) {
       context.report({
         node: node,
-        data: {trace: prettyTrace},
         message: 'Self-reference cycle',
       });
     } else {
@@ -188,31 +158,24 @@ module.exports = function(context) {
 
   return {
     CallExpression: function(node) {
-      // require(…);
-      if (isRequire(node)) {
-        var value = node.arguments[0].value;
-        resolveAndReport(node, value);
+      // no-cycles doesn't test for "require.resolve"
+      if (helpers.isRequireCall(node)) {
+        validate(node);
       }
     },
     ImportDeclaration: function(node) {
-      // import … from …;
-      if (isImport(node)) {
-        var value = node.source.value;
-        resolveAndReport(node, value);
+      if (helpers.isImport(node)) {
+        validate(node);
       }
     },
     ExportAllDeclaration: function(node) {
-      // export * from …;
-      if (isExportFrom(node)) {
-        var value = node.source.value;
-        resolveAndReport(node, value);
+      if (helpers.isExportFrom(node)) {
+        validate(node);
       }
     },
     ExportNamedDeclaration: function(node) {
-      // export … from …;
-      if (isExportFrom(node)) {
-        var value = node.source.value;
-        resolveAndReport(node, value);
+      if (helpers.isExportFrom(node)) {
+        validate(node);
       }
     },
     'Program:exit': function(node) {
