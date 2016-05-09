@@ -1,5 +1,10 @@
 'use strict';
 
+if (require('os').platform() !== 'darwin') {
+  console.log('Skipping case-sensitive test.');
+  process.exit(0);
+}
+
 var RuleTester = require('eslint').RuleTester;
 
 var ruleTester = new RuleTester();
