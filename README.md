@@ -2,8 +2,6 @@
 
 [![Build Status](https://travis-ci.org/zertosh/eslint-plugin-dependencies.svg?branch=master)](https://travis-ci.org/zertosh/eslint-plugin-dependencies)
 
-An [eslint](https://github.com/eslint/eslint) plugin that ...
-
 ## Usage
 
 ```sh
@@ -20,21 +18,28 @@ In your `.eslintrc`:
   "rules": {
     "dependencies/case-sensitive": 1,
     "dependencies/no-cycles": 1,
-    "dependencies/no-unresolved": 1
+    "dependencies/no-unresolved": 1,
+    "dependencies/require-json-ext": 1
   }
 }
 ```
 
 ## Rules
 
+An [eslint](https://github.com/eslint/eslint) plugin that ...
+
 ### `dependencies/case-sensitive`
 
-Verifies that `require` and `import` references match the case that is reported by a directory listing.
+Verifies that `require("…")`, `require.resolve(…)`, `import "…"` and `export … from "…"` ids match the case that is reported by a directory listing.
 
 ### `dependencies/no-cycles`
 
-This rule prevents cyclic references between modules. It resolves `require` calls and `import` statements to internal modules (i.e. not `node_modules`), to determine whether there is a cycle.
+Prevents cyclic references between modules. It resolves `require("…")`, `import "…"` and `export … from "…"` references to internal modules (i.e. not `node_modules`), to determine whether there is a cycle. If you're using a custom parser, the rule will use that to parse the dependencies.
 
 ### `dependencies/no-unresolved`
 
-No unresolved `require` calls or `import` statements. Only checks internal modules, not `node_modules`.
+Checks that `require("…")`, `require.resolve(…)`, `import "…"` and `export … from "…"` reference modules that exist.
+
+### `dependencies/require-json-ext`
+
+Ensures that modules are that are `.json` include their extension in the module id.
