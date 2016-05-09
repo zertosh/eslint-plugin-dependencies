@@ -38,7 +38,18 @@ Prevents cyclic references between modules. It resolves `require("…")`, `impor
 
 ### `dependencies/no-unresolved`
 
-Checks that `require("…")`, `require.resolve(…)`, `import "…"` and `export … from "…"` reference modules that exist.
+Checks that `require("…")`, `require.resolve(…)`, `import "…"` and `export … from "…"` reference modules that exist. Takes an `ignore` array of modules to ignore.
+
+```json
+{
+  "plugins": [
+    "dependencies"
+  ],
+  "rules": {
+    "dependencies/no-unresolved": [1, {"ignore": ["atom"]}]
+  }
+}
+```
 
 ### `dependencies/require-json-ext`
 

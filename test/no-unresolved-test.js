@@ -41,6 +41,11 @@ ruleTester.run('no-unresolved', require.resolve('../no-unresolved'), {
       filename: __filename,
       code: 'require("resolve/package.json")',
     },
+    {
+      filename: __filename,
+      code: 'require("non-existing-package")',
+      options: [{ignore: ['non-existing-package']}],
+    },
 
     //
     // require.resolve, import, export

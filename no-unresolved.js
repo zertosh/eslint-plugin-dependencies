@@ -6,6 +6,8 @@ var helpers = require('./_helpers');
 module.exports = function(context) {
   var target = context.getFilename();
 
+  var ignore = context.options[0] && context.options[0].ignore;
+
   var resolveOpts = {
     basedir: path.dirname(target),
     extensions: ['.js', '.json', '.node'],
@@ -13,6 +15,7 @@ module.exports = function(context) {
 
   function validate(node) {
     var id = helpers.getModuleId(node);
+    if (ignore && ignore.indexOf(id) !== -1) return;
     var resolved = helpers.resolveSync(id, resolveOpts);
     if (!resolved) {
       context.report({
@@ -48,4 +51,11 @@ module.exports = function(context) {
   };
 };
 
-module.exports.schema = [];
+module.exports.schema = {
+  ignore: {
+    type: 'array',
+    items: {
+      type: 'string',
+    },
+  },
+};
