@@ -29,6 +29,10 @@ ruleTester.run('case-sensitive', require.resolve('../case-sensitive'), {
     },
     {
       filename: __filename,
+      code: 'require("assert")',
+    },
+    {
+      filename: __filename,
       code: 'require("non-existing-filename")',
     },
     {

@@ -1,8 +1,9 @@
 'use strict';
 
 var commondir = require('commondir');
-var path = require('path');
 var fs = require('fs');
+var path = require('path');
+var resolve = require('resolve');
 
 var helpers = require('./_helpers');
 
@@ -54,7 +55,7 @@ module.exports = function(context) {
   function validate(node) {
     var id = helpers.getModuleId(node);
     var resolved = helpers.resolveSync(id, resolveOpts);
-    if (!resolved) return;
+    if (!resolved || resolve.isCore(resolved)) return;
     var prefix = commondir([target, resolved]);
     pathSteps(resolved)
       .filter(function(step) {
