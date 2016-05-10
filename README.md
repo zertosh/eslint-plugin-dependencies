@@ -64,4 +64,4 @@ Checks that `require("…")`, `require.resolve(…)`, `import "…"` and `export
 
 ### `dependencies/require-json-ext`
 
-Ensures that modules are that are `.json` include their extension in the module id.
+Ensures that modules are that are `.json` include their extension in the module id. Supports auto fix.

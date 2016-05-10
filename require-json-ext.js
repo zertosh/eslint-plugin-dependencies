@@ -24,7 +24,7 @@ module.exports = function(context) {
         data: {basename: basename},
         message: '"{{basename}}" missing ".json" extension.',
         fix: function(fixer) {
-          return fixer.insertTextAfter(idNode, '.json');
+          return fixer.insertTextBeforeRange([idNode.range[1] - 1], '.json');
         },
       });
     }
