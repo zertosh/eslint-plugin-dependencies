@@ -13,6 +13,12 @@ module.exports = function(context) {
     extensions: ['.js', '.json', '.node'],
   };
 
+  if (context.options[0] && context.options[0].paths) {
+    resolveOpts.paths = context.options[0].paths.map(function(single_path) {
+      return path.resolve(single_path);
+    });
+  }
+
   function validate(node) {
     var id = helpers.getModuleId(node);
     if (ignore && ignore.indexOf(id) !== -1) return;
@@ -53,6 +59,12 @@ module.exports = function(context) {
 
 module.exports.schema = {
   ignore: {
+    type: 'array',
+    items: {
+      type: 'string',
+    },
+  },
+  paths: {
     type: 'array',
     items: {
       type: 'string',

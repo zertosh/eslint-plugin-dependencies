@@ -39,6 +39,13 @@ ruleTester.run('case-sensitive', require.resolve('../case-sensitive'), {
       filename: __filename,
       code: 'require(foo)',
     },
+    // custom path
+    {
+      filename: __filename,
+      code: 'require("foo")',
+      options: [{ paths: ["test/custom-path"] }],
+    },
+
     // require.resolve(…);
     {
       filename: __filename,
@@ -167,6 +174,18 @@ ruleTester.run('case-sensitive', require.resolve('../case-sensitive'), {
       code: 'require("resolve/Index")',
       errors: [
         'Case mismatch in "Index", expected "index".',
+      ],
+    },
+
+    //
+    // custom path
+    //
+    {
+      filename: __filename,
+      code: 'require("Foo")',
+      options: [{ paths: ["test/custom-path"] }],
+      errors: [
+        'Case mismatch in "Foo", expected "foo".',
       ],
     },
 

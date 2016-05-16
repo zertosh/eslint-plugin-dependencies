@@ -32,6 +32,17 @@ An [eslint](https://github.com/eslint/eslint) plugin that ...
 
 Verifies that `require("…")`, `require.resolve(…)`, `import "…"` and `export … from "…"` ids match the case that is reported by a directory listing.
 
+```json
+{
+  "plugins": [
+    "dependencies"
+  ],
+  "rules": {
+    "dependencies/case-sensitive": [1, {"paths": ["custom-path-to-search-for-modules"]}]
+  }
+}
+```
+
 ### `dependencies/no-cycles`
 
 Prevents cyclic references between modules. It resolves `require("…")`, `import "…"` and `export … from "…"` references to internal modules (i.e. not `node_modules`), to determine whether there is a cycle. If you're using a custom parser, the rule will use that to parse the dependencies. The rule takes a `skip` array of strings, that will be treated as regexps to skip checking files.
@@ -57,7 +68,7 @@ Checks that `require("…")`, `require.resolve(…)`, `import "…"` and `export
     "dependencies"
   ],
   "rules": {
-    "dependencies/no-unresolved": [1, {"ignore": ["atom"]}]
+    "dependencies/no-unresolved": [1, {"ignore": ["atom"], "paths": ["custom-path-to-search-for-modules"]}]
   }
 }
 ```

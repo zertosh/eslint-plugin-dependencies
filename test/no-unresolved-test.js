@@ -46,6 +46,12 @@ ruleTester.run('no-unresolved', require.resolve('../no-unresolved'), {
       code: 'require("non-existing-package")',
       options: [{ignore: ['non-existing-package']}],
     },
+    // test custom path resolution
+    {
+      filename: __filename,
+      code: 'require("foo")',
+      options: [{paths: ['test/custom-path']}],
+    },
 
     //
     // require.resolve, import, export
@@ -116,6 +122,18 @@ ruleTester.run('no-unresolved', require.resolve('../no-unresolved'), {
         },
       ],
     },
+    // test custom path resolution
+    {
+      filename: __filename,
+      code: 'require("foo")',
+      errors: [
+        {
+          type: 'Literal',
+          message: '"foo" does not exist.',
+        },
+      ],
+    },
+
 
 
     //
