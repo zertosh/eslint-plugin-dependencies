@@ -52,9 +52,15 @@ module.exports = function(context) {
     extensions: ['.js', '.json', '.node'],
   };
 
+  if (context.options[0] && context.options[0].paths) {
+    resolveOpts.paths = context.options[0].paths.map(function(single_path) {
+      return path.resolve(single_path);
+    });
+  }
+
   function validate(node) {
     var id = helpers.getModuleId(node);
-    var resolved = helpers.resolveSync(id, resolveOpts);
+    var resolved = helpers.resolveSync(id, resolveOpts, context);
     if (!resolved || resolve.isCore(resolved)) return;
     var prefix = commondir([target, resolved]);
     pathSteps(resolved)
@@ -133,4 +139,11 @@ module.exports = function(context) {
   };
 };
 
-module.exports.schema = [];
+module.exports.schema = {
+  paths: {
+    type: 'array',
+    items: {
+      type: 'string',
+    },
+  },
+};
