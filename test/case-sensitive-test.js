@@ -63,6 +63,12 @@ ruleTester.run('case-sensitive', require.resolve('../case-sensitive'), {
       parserOptions: {sourceType: 'module'},
       code: 'import x from "../index"',
     },
+    // import type … from …;
+    {
+      filename: __filename,
+      parser: 'babel-eslint',
+      code: 'import type x from "../index"',
+    },
     // export * from "…";
     {
       filename: __filename,
@@ -74,6 +80,12 @@ ruleTester.run('case-sensitive', require.resolve('../case-sensitive'), {
       filename: __filename,
       parserOptions: {sourceType: 'module'},
       code: 'export * from "../index"',
+    },
+    // export type … from "…";
+    {
+      filename: __filename,
+      parser: 'babel-eslint',
+      code: 'export type {foo} from "../index"',
     },
   ],
   invalid: [
@@ -224,6 +236,16 @@ ruleTester.run('case-sensitive', require.resolve('../case-sensitive'), {
     },
     {
       filename: __filename,
+      code: 'import type baz from "./Case-Sensitive/bar/Baz.js"',
+      parser: 'babel-eslint',
+      errors: [
+        'Case mismatch in "Case-Sensitive", expected "case-sensitive".',
+        'Case mismatch in "bar", expected "Bar".',
+        'Case mismatch in "Baz.js", expected "baz.js".',
+      ],
+    },
+    {
+      filename: __filename,
       code: 'export * from "./Case-Sensitive/bar/Baz.js"',
       parserOptions: {sourceType: 'module'},
       errors: [
@@ -236,6 +258,16 @@ ruleTester.run('case-sensitive', require.resolve('../case-sensitive'), {
       filename: __filename,
       code: 'export {baz} from "./Case-Sensitive/bar/Baz.js"',
       parserOptions: {sourceType: 'module'},
+      errors: [
+        'Case mismatch in "Case-Sensitive", expected "case-sensitive".',
+        'Case mismatch in "bar", expected "Bar".',
+        'Case mismatch in "Baz.js", expected "baz.js".',
+      ],
+    },
+    {
+      filename: __filename,
+      code: 'export type {baz} from "./Case-Sensitive/bar/Baz.js"',
+      parser: 'babel-eslint',
       errors: [
         'Case mismatch in "Case-Sensitive", expected "case-sensitive".',
         'Case mismatch in "bar", expected "Bar".',
