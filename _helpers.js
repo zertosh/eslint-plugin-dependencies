@@ -54,6 +54,16 @@ function isImport(node) {
   );
 }
 
+function isImportType(node) {
+  // import type … from "…";
+  return (
+    node.type === 'ImportDeclaration' &&
+    node.importKind === 'type' &&
+    node.source &&
+    node.source.type === 'Literal'
+  );
+}
+
 function isExportFrom(node) {
   // export * from "…";
   // export … from "…";
@@ -67,10 +77,24 @@ function isExportFrom(node) {
   );
 }
 
+function isExportTypeFrom(node) {
+  // export type * from "…";
+  // export type … from "…";
+  return (
+    node.type === 'ExportAllDeclaration' ||
+    node.type === 'ExportNamedDeclaration'
+  ) && (
+    node.exportKind === 'type' &&
+    node.source &&
+    node.source.type === 'Literal'
+  );
+}
+
 function getModuleId(node) {
   if (isRequireCall(node) || isRequireResolveCall(node)) {
     return node.arguments[0].value;
-  } else if (isImport(node) || isExportFrom(node)) {
+  } else if (isImport(node) || isExportFrom(node) ||
+             isImportType(node) || isExportTypeFrom(node)) {
     return node.source.value;
   } else {
     return null;
@@ -80,7 +104,8 @@ function getModuleId(node) {
 function getIdNode(node) {
   if (isRequireCall(node) || isRequireResolveCall(node)) {
     return node.arguments[0];
-  } else if (isImport(node) || isExportFrom(node)) {
+  } else if (isImport(node) || isExportFrom(node) ||
+             isImportType(node) || isExportTypeFrom(node)) {
     return node.source;
   } else {
     return null;
@@ -92,7 +117,9 @@ module.exports = {
   isRequireCall: isRequireCall,
   isRequireResolveCall: isRequireResolveCall,
   isImport: isImport,
+  isImportType: isImportType,
   isExportFrom: isExportFrom,
+  isExportTypeFrom: isExportTypeFrom,
   getIdNode: getIdNode,
   getModuleId: getModuleId,
 };

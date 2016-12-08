@@ -40,17 +40,17 @@ module.exports = function(context) {
       }
     },
     ImportDeclaration: function(node) {
-      if (helpers.isImport(node)) {
+      if (helpers.isImport(node) || helpers.isImportType(node)) {
         validate(node);
       }
     },
     ExportAllDeclaration: function(node) {
-      if (helpers.isExportFrom(node)) {
+      if (helpers.isExportFrom(node) || helpers.isExportTypeFrom(node)) {
         validate(node);
       }
     },
     ExportNamedDeclaration: function(node) {
-      if (helpers.isExportFrom(node)) {
+      if (helpers.isExportFrom(node) || helpers.isExportTypeFrom(node)) {
         validate(node);
       }
     },

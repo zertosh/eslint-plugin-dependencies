@@ -72,6 +72,11 @@ ruleTester.run('no-unresolved', require.resolve('../no-unresolved'), {
     },
     {
       filename: __filename,
+      parser: 'babel-eslint',
+      code: 'import type bar from "./resolve/foo"',
+    },
+    {
+      filename: __filename,
       parserOptions: {sourceType: 'module'},
       code: 'export * from "./resolve/foo"',
     },
@@ -79,6 +84,11 @@ ruleTester.run('no-unresolved', require.resolve('../no-unresolved'), {
       filename: __filename,
       parserOptions: {sourceType: 'module'},
       code: 'export {bar} from "./resolve/foo"',
+    },
+    {
+      filename: __filename,
+      parser: 'babel-eslint',
+      code: 'export type {bar} from "./resolve/foo"',
     },
   ],
   invalid: [
@@ -173,6 +183,17 @@ ruleTester.run('no-unresolved', require.resolve('../no-unresolved'), {
     },
     {
       filename: __filename,
+      parser: 'babel-eslint',
+      code: 'import type qux from "./resolve/qux"',
+      errors: [
+        {
+          type: 'Literal',
+          message: '"./resolve/qux" does not exist.',
+        },
+      ],
+    },
+    {
+      filename: __filename,
       parserOptions: {sourceType: 'module'},
       code: 'export {qux} from "./resolve/qux"',
       errors: [
@@ -186,6 +207,17 @@ ruleTester.run('no-unresolved', require.resolve('../no-unresolved'), {
       filename: __filename,
       parserOptions: {sourceType: 'module'},
       code: 'export * from "./resolve/qux"',
+      errors: [
+        {
+          type: 'Literal',
+          message: '"./resolve/qux" does not exist.',
+        },
+      ],
+    },
+    {
+      filename: __filename,
+      parser: 'babel-eslint',
+      code: 'export type {qux} from "./resolve/qux"',
       errors: [
         {
           type: 'Literal',
