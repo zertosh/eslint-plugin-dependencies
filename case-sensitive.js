@@ -24,9 +24,9 @@ function readdirSync(dirname) {
 // turns "/a/b/c.js" into ["/a", "/a/b", "/a/b/c.js"]
 function pathSteps(pathString) {
   return pathString
-    .split('/')
+    .split(path.sep)
     .map(function(part, i, parts) {
-      return parts.slice(0, i + 1).join('/');
+      return parts.slice(0, i + 1).join(path.sep);
     })
     .filter(Boolean);
 }
