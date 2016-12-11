@@ -12,7 +12,12 @@ var helpers = require('./_helpers');
 
 var eslintModule = (function() {
   var parent = module.parent;
-  var eslintLibRe = /\/node_modules\/eslint\/lib\/[^/]+\.js$/;
+  var eslintLibRe = new RegExp(
+    '\\' + path.sep + 'node_modules' +
+    '\\' + path.sep + 'eslint' +
+    '\\' + path.sep + 'lib' +
+    '\\' + path.sep + '[^\\' + path.sep + ']+\\.js$'
+  );
   do {
     if (eslintLibRe.test(parent.filename)) {
       return parent;
