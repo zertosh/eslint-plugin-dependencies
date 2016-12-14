@@ -37,9 +37,6 @@ var externalRe = /^[^./]/;
 var skipExts = /\.(?:json|node)$/;
 var searchRe = /\b(?:require|import|export)\b/;
 
-function StorageObject() {}
-StorageObject.prototype = Object.create(null);
-
 var NoopVisitor = {
   Program: function() {},
 };
@@ -84,7 +81,7 @@ function relativizeTrace(trace, basedir) {
   return out;
 }
 
-var depsCache = new StorageObject();
+var depsCache = new helpers.StorageObject();
 function getDeps(filename, src, ast, context) {
   if (depsCache[filename]) return depsCache[filename];
   var found = depsCache[filename] = [];
@@ -136,7 +133,7 @@ module.exports = function(context) {
     return NoopVisitor;
   }
 
-  var seen = new StorageObject();
+  var seen = new helpers.StorageObject();
   var basedir = path.dirname(target);
 
   function trace(filename, depth, refs) {

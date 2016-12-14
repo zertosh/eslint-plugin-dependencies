@@ -2,9 +2,12 @@
 
 var resolve = require('resolve');
 
+function StorageObject() {}
+StorageObject.prototype = Object.create(null);
+
 // The resolve cache is shared by all the rules, since the operation is very
 // common and expensive.
-var _resolveCache = Object.create(null);
+var _resolveCache = new StorageObject();
 function resolveSync(x, opts) {
   var cacheKey = JSON.stringify([x, opts]);
   if (!(cacheKey in _resolveCache)) {
@@ -113,6 +116,7 @@ function getIdNode(node) {
 }
 
 module.exports = {
+  StorageObject: StorageObject,
   resolveSync: resolveSync,
   isRequireCall: isRequireCall,
   isRequireResolveCall: isRequireResolveCall,
