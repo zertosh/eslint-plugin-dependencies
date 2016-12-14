@@ -7,8 +7,12 @@ StorageObject.prototype = Object.create(null);
 
 // The resolve cache is shared by all the rules, since the operation is very
 // common and expensive.
-var _resolveCache = new StorageObject();
+var _resolveCache;
 function resolveSync(x, opts) {
+  if (!_resolveCache) {
+    _resolveCache = new StorageObject();
+    process.nextTick(function() { _resolveCache = null; });
+  }
   var cacheKey = JSON.stringify([x, opts]);
   if (!(cacheKey in _resolveCache)) {
     try {
