@@ -52,6 +52,13 @@ module.exports = function(context) {
     extensions: ['.js', '.json', '.node'],
   };
 
+  var trimExts = nodeExts;
+
+  if (context.parserOptions.ecmaFeatures && context.parserOptions.ecmaFeatures.jsx) {
+    resolveOpts.extensions.push('.jsx');
+    trimExts = /\.(jsx?|json|node)$/
+  }
+
   if (context.options[0] && context.options[0].paths) {
     resolveOpts.paths = context.options[0].paths.map(function(single_path) {
       return path.resolve(single_path);
@@ -83,17 +90,17 @@ module.exports = function(context) {
 
         var shouldRemoveExt =
           i === steps.length - 1 &&   // last step
-          nodeExts.test(basename) &&  // expected
-          !nodeExts.test(id);         // actual
+          trimExts.test(basename) &&  // expected
+          !trimExts.test(id);         // actual
 
         var suggestion = getCaseSuggestion(basename, dirlist);
 
         var incorrect = shouldRemoveExt
-          ? basename.replace(nodeExts, '')
+          ? basename.replace(trimExts, '')
           : basename;
 
         var correct = shouldRemoveExt && suggestion
-          ? suggestion.replace(nodeExts, '')
+          ? suggestion.replace(trimExts, '')
           : suggestion;
 
         var idNode = helpers.getIdNode(node);
