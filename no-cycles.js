@@ -81,10 +81,13 @@ function relativizeTrace(trace, basedir) {
   return out;
 }
 
-var depsCache = new helpers.StorageObject();
+var depsCache = new helpers.TickCache();
 function getDeps(filename, src, ast, context) {
-  if (depsCache[filename]) return depsCache[filename];
-  var found = depsCache[filename] = [];
+  var cached = depsCache.get(filename);
+  if (cached) return cached;
+
+  var found = [];
+  depsCache.set(filename, found);
 
   if (skipExts.test(filename)) return found;
 

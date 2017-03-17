@@ -5,23 +5,36 @@ var resolve = require('resolve');
 function StorageObject() {}
 StorageObject.prototype = Object.create(null);
 
+function TickCache() {
+  this._data = new StorageObject();
+  this._willClear = false;
+}
+TickCache.prototype.get = function(key) {
+  return this._data[key];
+}
+TickCache.prototype.set = function(key, value) {
+  this._data[key] = value;
+  if (!this._willClear) {
+    this._willClear = true;
+    process.nextTick(TickCache.bind(this));
+  }
+}
+
 // The resolve cache is shared by all the rules, since the operation is very
 // common and expensive.
-var _resolveCache;
+var _resolveCache = new TickCache();
 function resolveSync(x, opts) {
-  if (!_resolveCache) {
-    _resolveCache = new StorageObject();
-    process.nextTick(function() { _resolveCache = null; });
-  }
   var cacheKey = JSON.stringify([x, opts]);
-  if (!(cacheKey in _resolveCache)) {
+  var cached = _resolveCache.get(cacheKey);
+  if (cached === undefined) {
     try {
-      _resolveCache[cacheKey] = resolve.sync(x, opts);
+      cached = resolve.sync(x, opts);
     } catch(err) {
-      _resolveCache[cacheKey] = null;
+      cached = null;
     }
+    _resolveCache.set(cacheKey, cached);
   }
-  return _resolveCache[cacheKey];
+  return cached;
 }
 
 function isRequireCall(node) {
@@ -121,6 +134,7 @@ function getIdNode(node) {
 
 module.exports = {
   StorageObject: StorageObject,
+  TickCache: TickCache,
   resolveSync: resolveSync,
   isRequireCall: isRequireCall,
   isRequireResolveCall: isRequireResolveCall,
