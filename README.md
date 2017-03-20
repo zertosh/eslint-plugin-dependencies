@@ -47,13 +47,15 @@ Verifies that `require("…")`, `require.resolve(…)`, `import "…"` and `expo
 
 Prevents cyclic references between modules. It resolves `require("…")`, `import "…"` and `export … from "…"` references to internal modules (i.e. not `node_modules`), to determine whether there is a cycle. If you're using a custom parser, the rule will use that to parse the dependencies. The rule takes a `skip` array of strings, that will be treated as regexps to skip checking files.
 
+Additionally, with the `types` option enabled, you can detect and prevent `import type` cycles as well. This can be helpful, since the [Flow checker](https://flow.org) can exhibit unexpected behavior with such cycles.
+
 ```json
 {
   "plugins": [
     "dependencies"
   ],
   "rules": {
-    "dependencies/no-cyles": [1, {"skip": ["/spec/", "/vendor/"]}]
+    "dependencies/no-cyles": [1, {"skip": ["/spec/", "/vendor/"], "types": true}]
   }
 }
 ```

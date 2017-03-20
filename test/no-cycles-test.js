@@ -51,6 +51,20 @@ ruleTester.run('no-cycles', require.resolve('../no-cycles'), {
       ],
     },
     {
+      // types-multi-direct
+      // a => b => c => a
+      // a ======> c => a
+      filename: path.join(__dirname, 'cycles-types-multi-direct/a.js'),
+      parser: 'babel-eslint',
+      parserOptions: {sourceType: 'module'},
+      code: fs.readFileSync(path.join(__dirname, 'cycles-types-multi-direct/a.js'), 'utf8'),
+      options: [{types: true}],
+      errors: [
+        'Cycle in b.js => c.js.',
+        'Cycle in c.js.',
+      ],
+    },
+    {
       // multi-part-direct
       // a => b => c => a
       //      b ======> a
