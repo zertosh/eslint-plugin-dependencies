@@ -82,7 +82,7 @@ function relativizeTrace(trace, basedir) {
 }
 
 var depsCache = new helpers.StorageObject();
-function getDeps(filename, src, ast, context) {
+function getDeps(filename, src, ast, context, options) {
   if (depsCache[filename]) return depsCache[filename];
   var found = depsCache[filename] = [];
 
@@ -107,6 +107,7 @@ function getDeps(filename, src, ast, context) {
 
       if (helpers.isRequireCall(node) ||
           helpers.isImport(node) ||
+          (options.types && helpers.isImportType(node)) ||
           helpers.isExportFrom(node)) {
         var id = helpers.getModuleId(node);
         var resolved = resolver(id, basedir);
@@ -125,7 +126,8 @@ function getDeps(filename, src, ast, context) {
 module.exports = function(context) {
   var target = context.getFilename();
 
-  var skip = context.options[0] && context.options[0].skip;
+  var options = context.options[0] || {};
+  var skip = options.skip;
   var shouldSkip = skip && skip.some(function(pattern) {
     return RegExp(pattern).test(target);
   });
@@ -139,7 +141,7 @@ module.exports = function(context) {
   function trace(filename, depth, refs) {
     if (!depth) depth = [];
     if (!refs) refs = [];
-    var deps = getDeps(filename, null, null, context);
+    var deps = getDeps(filename, null, null, context, options);
     depth.push(filename);
     for (var i = 0; i < deps.length; i++) {
       filename = deps[i];
@@ -183,7 +185,8 @@ module.exports = function(context) {
       }
     },
     ImportDeclaration: function(node) {
-      if (helpers.isImport(node)) {
+      if (helpers.isImport(node) ||
+          (options.types && helpers.isImportType(node))) {
         validate(node);
       }
     },
@@ -200,7 +203,7 @@ module.exports = function(context) {
     'Program:exit': function(node) {
       // since this ast has already been built, and traversing is cheap,
       // run it through references.deps so it's cached for future runs.
-      getDeps(target, context.getSourceCode().text, node, context);
+      getDeps(target, context.getSourceCode().text, node, context, options);
     },
   };
 };
@@ -212,4 +215,7 @@ module.exports.schema = {
       type: 'string',
     },
   },
+  types: {
+    type: 'boolean'
+  }
 };
