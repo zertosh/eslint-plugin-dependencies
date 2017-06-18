@@ -5,23 +5,33 @@ var resolve = require('resolve');
 function StorageObject() {}
 StorageObject.prototype = Object.create(null);
 
+// A cache that resets itself after one tick.
+function oneTickCache() {
+  var store = null;
+  function reset() { store = null; }
+  return function() {
+    if (store === null) {
+      store = new StorageObject();
+      process.nextTick(reset);
+    }
+    return store;
+  };
+}
+
 // The resolve cache is shared by all the rules, since the operation is very
 // common and expensive.
-var _resolveCache;
+var _resolveCache = oneTickCache();
 function resolveSync(x, opts) {
-  if (!_resolveCache) {
-    _resolveCache = new StorageObject();
-    process.nextTick(function() { _resolveCache = null; });
-  }
+  var resolveCache = _resolveCache();
   var cacheKey = JSON.stringify([x, opts]);
-  if (!(cacheKey in _resolveCache)) {
+  if (!(cacheKey in resolveCache)) {
     try {
-      _resolveCache[cacheKey] = resolve.sync(x, opts);
+      resolveCache[cacheKey] = resolve.sync(x, opts);
     } catch(err) {
-      _resolveCache[cacheKey] = null;
+      resolveCache[cacheKey] = null;
     }
   }
-  return _resolveCache[cacheKey];
+  return resolveCache[cacheKey];
 }
 
 function isRequireCall(node) {
@@ -121,6 +131,7 @@ function getIdNode(node) {
 
 module.exports = {
   StorageObject: StorageObject,
+  oneTickCache: oneTickCache,
   resolveSync: resolveSync,
   isRequireCall: isRequireCall,
   isRequireResolveCall: isRequireResolveCall,

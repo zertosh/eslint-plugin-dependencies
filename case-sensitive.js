@@ -9,16 +9,17 @@ var helpers = require('./_helpers');
 
 var nodeExts = /\.(js|json|node)$/;
 
-var _readdirCache = Object.create(null);
+var _readdirCache = helpers.oneTickCache();
 function readdirSync(dirname) {
-  if (!(dirname in _readdirCache)) {
+  var readdirCache = _readdirCache();
+  if (!(dirname in readdirCache)) {
     try {
-      _readdirCache[dirname] = fs.readdirSync(dirname);
+      readdirCache[dirname] = fs.readdirSync(dirname);
     } catch (err) {
-      _readdirCache[dirname] = null;
+      readdirCache[dirname] = null;
     }
   }
-  return _readdirCache[dirname];
+  return readdirCache[dirname];
 }
 
 // turns "/a/b/c.js" into ["/a", "/a/b", "/a/b/c.js"]

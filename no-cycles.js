@@ -81,8 +81,9 @@ function relativizeTrace(trace, basedir) {
   return out;
 }
 
-var depsCache = new helpers.StorageObject();
+var _depsCache = helpers.oneTickCache();
 function getDeps(filename, src, ast, context, options) {
+  var depsCache = _depsCache();
   if (depsCache[filename]) return depsCache[filename];
   var found = depsCache[filename] = [];
 
