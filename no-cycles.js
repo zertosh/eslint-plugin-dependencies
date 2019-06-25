@@ -26,8 +26,17 @@ var eslintModule = (function() {
   throw new Error('Could not find eslint');
 })();
 
-var Traverser = eslintModule.require('./util/traverser');
-var traverser = new Traverser();
+var traverser = (function() {
+  var Traverser;
+  try {
+    // ESLint >=6.0.0
+    Traverser = eslintModule.require('./shared/traverser');
+  } catch (err) {
+    // ESLint <6.0.0
+    Traverser = eslintModule.require('./util/traverser');
+  }
+  return new Traverser();
+})();
 
 //------------------------------------------------------------------------------
 // Utils
