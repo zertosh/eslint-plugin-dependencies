@@ -55,7 +55,7 @@ Additionally, with the `types` option enabled, you can detect and prevent `impor
     "dependencies"
   ],
   "rules": {
-    "dependencies/no-cyles": [1, {"skip": ["/spec/", "/vendor/"], "types": true}]
+    "dependencies/no-cycles": [1, {"skip": ["/spec/", "/vendor/"], "types": true}]
   }
 }
 ```
