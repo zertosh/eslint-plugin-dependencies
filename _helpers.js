@@ -109,7 +109,7 @@ function isExportTypeFrom(node) {
 
 function getModuleId(node) {
   if (isRequireCall(node) || isRequireResolveCall(node)) {
-    return node.arguments[0].value;
+    return node.arguments[0].value.split("!").pop();
   } else if (isImport(node) || isExportFrom(node) ||
              isImportType(node) || isExportTypeFrom(node)) {
     return node.source.value;
